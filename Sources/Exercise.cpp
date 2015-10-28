@@ -5,7 +5,6 @@
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
 #include <Kore/Input/Keyboard.h>
-#include <Kore/Input/KeyEvent.h>
 #include <Kore/Input/Mouse.h>
 #include <Kore/Audio/Mixer.h>
 #include "SimpleGraphics.h"
@@ -51,19 +50,19 @@ namespace {
 		endFrame();
 	}
 
-	void keyDown(KeyEvent* event) {
-		if (event->keycode() == Key_Left) {
+	void keyDown(KeyCode code, wchar_t character) {
+		if (code == Key_Left) {
 			// ...
 		}
 	}
 
-	void keyUp(KeyEvent* event) {
-		if (event->keycode() == Key_Left) {
+	void keyUp(KeyCode code, wchar_t character) {
+		if (code == Key_Left) {
 			// ...
 		}
 	}
 
-	void mouseMove(int x, int y) {
+	void mouseMove(int x, int y, int movementX, int movementY) {
 
 	}
 	
@@ -77,7 +76,7 @@ namespace {
 }
 
 int kore(int argc, char** argv) {
-	Application* app = new Application(argc, argv, width, height, false, "Exercise3");
+	Application* app = new Application(argc, argv, width, height, 0, false, "Exercise3");
 	
 	initGraphics();
 	app->setCallback(update);
