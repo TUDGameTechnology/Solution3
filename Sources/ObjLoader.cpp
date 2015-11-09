@@ -200,11 +200,9 @@ Mesh* loadObj(const char* filename) {
 	int index = 0;
 	char* line = tokenize(source, '\n', index);
 	
-	// TODO: Can we do that?
 	while (line != nullptr) {
-		// TODO: How do I give this memory back?
-		// delete line;	
 		parseLine(mesh, line);
+		delete[] line;
 		line = tokenize(source, '\n', index);
 	}
 
