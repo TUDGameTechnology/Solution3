@@ -14,6 +14,5 @@ void destroyImage(Kore::Image* image);
 void drawImage(Kore::Image* image, int x, int y);
 void drawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
 // Watch out for resolutions that are higher than your monitor's resolution and for non-power-of-two sizes
-// TODO: We need to scale the bunny down or fix the issue with Kore's non-power-of-two sizes
-const int width = 1024;
-const int height = 1024;
+const int width = 512;
+const int height = 512;
