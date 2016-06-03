@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "SimpleGraphics.h"
-#include <Kore/Application.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Graphics/Graphics.h>
 #include <Kore/Graphics/Shader.h>
@@ -21,6 +20,9 @@ namespace {
 }
 
 void startFrame() {
+	Graphics::begin();
+	Graphics::clear(Graphics::ClearColorFlag, 0xff000000);
+
 	image = (int*)texture->lock();
 }
 
@@ -167,8 +169,6 @@ void drawImage(Image* image, int x, int y) {
 void endFrame() {
 	texture->unlock();
 
-	Graphics::begin();
-	Graphics::clear(Graphics::ClearColorFlag, 0xff000000);
 
 
 	program->set();

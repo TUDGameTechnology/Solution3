@@ -1,6 +1,5 @@
 #include "pch.h"
 
-#include <Kore/Application.h>
 #include <Kore/IO/FileReader.h>
 #include <Kore/Math/Core.h>
 #include <Kore/System.h>
@@ -233,7 +232,8 @@ namespace {
 		}
 	}
 
-	void mouseMove(int x, int y, int movementX, int movementY) {
+	void mouseMove(int windowId, int x, int y, int movementX, int movementY) {
+		// @@TODO: Figure out how to capture the mouse outside the window
 		if (rotate) {
 			cameraRotX += (float)((mousePressY - y) * CAMERA_ROTATION_SPEED_X);
 			cameraRotY -= (float)((mousePressX - x) * CAMERA_ROTATION_SPEED_Y);
@@ -242,26 +242,42 @@ namespace {
 		}
 	}
 
-	void mousePress(int button, int x, int y) {
+	void mousePress(int windowId, int button, int x, int y) {
 		rotate = true;
 		mousePressX = x;
 		mousePressY = y;
 	}
 
-	void mouseRelease(int button, int x, int y) {
+	void mouseRelease(int windowId, int button, int x, int y) {
 		rotate = false;
 	}
 }
 
 int kore(int argc, char** argv) {
-	Application* app = new Application(argc, argv, width, height, 0, false, "Solution3");
+	Kore::System::setName("TUD Game Technology - ");
+	Kore::System::setup();
+	Kore::WindowOptions options;
+	options.title = "Solution 3";
+	options.width = width;
+	options.height = height;
+	options.x = 100;
+	options.y = 100;
+	options.targetDisplay = -1;
+	options.mode = WindowModeWindow;
+	options.rendererOptions.depthBufferBits = 16;
+	options.rendererOptions.stencilBufferBits = 8;
+	options.rendererOptions.textureFormat = 0;
+	options.rendererOptions.antialiasing = 0;
+	Kore::System::initWindow(options);
 
 	initGraphics();
-	app->setCallback(update);
+	Kore::System::setCallback(update);
 
-	startTime = System::time();
 	Kore::Mixer::init();
 	Kore::Audio::init();
+
+
+	startTime = System::time();
 
 	mesh = loadObj("bunny.obj");
 
@@ -270,18 +286,17 @@ int kore(int argc, char** argv) {
 		mesh->vertices[i * 5 + 1] *= 10;
 		mesh->vertices[i * 5 + 2] *= 10;
 	}
+	
 
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
 	Mouse::the()->Move = mouseMove;
 	Mouse::the()->Press = mousePress;
 	Mouse::the()->Release = mouseRelease;
-
+	
 	initCamera();
 
-	app->start();
+	Kore::System::start();
 
-	delete app;
-
-	return 0;
+	return 0; 
 }
