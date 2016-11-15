@@ -15,7 +15,6 @@ using namespace Kore;
 #define CAMERA_ROTATION_SPEED_X 0.001
 #define CAMERA_ROTATION_SPEED_Y 0.001
 
-
 namespace {
 	double startTime;
 	float lastT = 0;
@@ -68,13 +67,17 @@ namespace {
 		z = d3z;
 	}
 
-	void drawBunny(){
+	void update()
+	{
 		float t = (float)(System::time() - startTime);
+		Kore::Audio::update();
+
+		startFrame();
 
 		float timeSinceLastFrame = t - lastT;
 		lastT = t;
 
-		//update camera:
+		// Update camera:
 		float cameraMovementX = 0;
 		float cameraMovementY = 0;
 		float cameraMovementZ = 0;
@@ -92,7 +95,7 @@ namespace {
 		if (moveBackward)
 			cameraMovementZ += timeSinceLastFrame * movementSpeed;
 
-		//rotate direction according to current rotation
+		// Rotate direction according to current rotation
 		rotate3d(cameraMovementX, cameraMovementY, cameraMovementZ, -cameraRotX, 0, -cameraRotZ);
 		rotate3d(cameraMovementX, cameraMovementY, cameraMovementZ, 0, -cameraRotY, -cameraRotZ);
 
@@ -101,7 +104,7 @@ namespace {
 		cameraZ += cameraMovementZ;
 
 		clear(0, 0, 0);
-		
+
 		/************************************************************************/
 		/* Exercise 3 Practical Task 1                                          */
 		/* Implement camera controls to translate and rotate the mesh           */
@@ -109,10 +112,12 @@ namespace {
 		/************************************************************************/
 
 		for (int i = 0; i < mesh->numFaces; ++i) {
+			// Get the indices into the vertices array for each vertex of the mesh
 			int i1 = mesh->indices[i * 3 + 0];
 			int i2 = mesh->indices[i * 3 + 1];
 			int i3 = mesh->indices[i * 3 + 2];
 
+			// Get the x, y, z coordinates of each vertex
 			float x1 = mesh->vertices[i1 * 5 + 0];
 			float y1 = -mesh->vertices[i1 * 5 + 1];
 			float z1 = mesh->vertices[i1 * 5 + 2];
@@ -125,7 +130,7 @@ namespace {
 			float y3 = -mesh->vertices[i3 * 5 + 1];
 			float z3 = mesh->vertices[i3 * 5 + 2];
 
-			//move vectors
+			// Move vectors
 			x1 -= cameraX;
 			y1 -= cameraY;
 			z1 -= cameraZ;
@@ -136,7 +141,7 @@ namespace {
 			y3 -= cameraY;
 			z3 -= cameraZ;
 
-			//camera rotation
+			// Camera rotation
 			rotate3d(x1, y1, z1, cameraRotX, cameraRotY, cameraRotZ);
 			rotate3d(x2, y2, z2, cameraRotX, cameraRotY, cameraRotZ);
 			rotate3d(x3, y3, z3, cameraRotX, cameraRotY, cameraRotZ);
@@ -144,7 +149,7 @@ namespace {
 			if (z1 > zmin || z2 > zmin || z3 > zmin)
 				continue;
 
-			//perspective transform:
+			// Perspective transform:
 			x1 = (zmin / z1) * x1;
 			y1 = (zmin / z1) * y1;
 			x2 = (zmin / z2) * x2;
@@ -157,20 +162,14 @@ namespace {
 				x2 * height + width / 2, y2 * height + height / 2,
 				x3 * height + width / 2, y3 * height + height / 2);
 		}
-	}
-
-
-
-	void update() {
-		Kore::Audio::update();
-		startFrame();
-
-		drawBunny();
 
 		endFrame();
 	}
 
 	void keyDown(KeyCode code, wchar_t character) {
+		/************************************************************************/
+		/* Use the keyboard input to control the transformations                */
+		/************************************************************************/
 		switch (code)
 		{
 		case Key_Left:
@@ -232,8 +231,7 @@ namespace {
 		}
 	}
 
-	void mouseMove(int windowId, int x, int y, int movementX, int movementY) {
-		// @@TODO: Figure out how to capture the mouse outside the window
+	void mouseMove(int window, int x, int y, int movementX, int movementY) {
 		if (rotate) {
 			cameraRotX += (float)((mousePressY - y) * CAMERA_ROTATION_SPEED_X);
 			cameraRotY -= (float)((mousePressX - x) * CAMERA_ROTATION_SPEED_Y);
@@ -242,43 +240,28 @@ namespace {
 		}
 	}
 
-	void mousePress(int windowId, int button, int x, int y) {
+	void mousePress(int window, int button, int x, int y) {
 		rotate = true;
 		mousePressX = x;
 		mousePressY = y;
 	}
 
-	void mouseRelease(int windowId, int button, int x, int y) {
+	void mouseRelease(int window, int button, int x, int y) {
 		rotate = false;
 	}
 }
 
 int kore(int argc, char** argv) {
-	Kore::System::setName("TUD Game Technology - ");
-	Kore::System::setup();
-	Kore::WindowOptions options;
-	options.title = "Solution 3";
-	options.width = width;
-	options.height = height;
-	options.x = 100;
-	options.y = 100;
-	options.targetDisplay = -1;
-	options.mode = WindowModeWindow;
-	options.rendererOptions.depthBufferBits = 16;
-	options.rendererOptions.stencilBufferBits = 8;
-	options.rendererOptions.textureFormat = 0;
-	options.rendererOptions.antialiasing = 0;
-	Kore::System::initWindow(options);
+	Kore::System::init("Solution 3", width, height);
 
 	initGraphics();
 	Kore::System::setCallback(update);
 
+	startTime = System::time();
 	Kore::Mixer::init();
 	Kore::Audio::init();
 
-
 	startTime = System::time();
-
 	mesh = loadObj("bunny.obj");
 
 	for (int i = 0; i < mesh->numVertices; i++) {
@@ -286,17 +269,17 @@ int kore(int argc, char** argv) {
 		mesh->vertices[i * 5 + 1] *= 10;
 		mesh->vertices[i * 5 + 2] *= 10;
 	}
-	
+
 
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
 	Mouse::the()->Move = mouseMove;
 	Mouse::the()->Press = mousePress;
 	Mouse::the()->Release = mouseRelease;
-	
+
 	initCamera();
 
 	Kore::System::start();
 
-	return 0; 
+	return 0;
 }
