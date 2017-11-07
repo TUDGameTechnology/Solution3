@@ -5,10 +5,14 @@
 #include <Kore/System.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Input/Mouse.h>
-#include <Kore/Audio/Mixer.h>
+#include <Kore/Audio1/Audio.h>
+#include <Kore/Graphics1/Graphics.h>
 #include <Kore/Log.h>
-#include "SimpleGraphics.h"
+#include "GraphicsHelper.h"
 #include "ObjLoader.h"
+
+const int width = 512;
+const int height = 512;
 
 using namespace Kore;
 
@@ -70,9 +74,10 @@ namespace {
 	void update()
 	{
 		float t = (float)(System::time() - startTime);
-		Kore::Audio::update();
+		Kore::Audio2::update();
 
-		startFrame();
+		Graphics1::begin();
+		clear(0.0f, 0.0f, 0.0f);
 
 		float timeSinceLastFrame = t - lastT;
 		lastT = t;
@@ -157,45 +162,47 @@ namespace {
 			x3 = (zmin / z3) * x3;
 			y3 = (zmin / z3) * y3;
 
+			// Draw the triangle
+			float drawScale = 1024;
 			drawTriangle(
-				x1 * height + width / 2, y1 * height + height / 2,
-				x2 * height + width / 2, y2 * height + height / 2,
-				x3 * height + width / 2, y3 * height + height / 2);
+				x1 * drawScale + width / 2, y1 * drawScale + height / 2,
+				x2 * drawScale + width / 2, y2 * drawScale + height / 2,
+				x3 * drawScale + width / 2, y3 * drawScale + height / 2);
 		}
 
-		endFrame();
+		Graphics1::end();
 	}
 
-	void keyDown(KeyCode code, wchar_t character) {
+	void keyDown(KeyCode code) {
 		/************************************************************************/
 		/* Use the keyboard input to control the transformations                */
 		/************************************************************************/
 		switch (code)
 		{
-		case Key_Left:
-		case Key_A:
+		case KeyLeft:
+		case KeyA:
 			moveLeft = true;
 			break;
-		case Key_Right:
-		case Key_D:
+		case KeyRight:
+		case KeyD:
 			moveRight = true;
 			break;
-		case Key_Up:
+		case KeyUp:
 			moveUp = true;
 			break;
-		case Key_Down:
+		case KeyDown:
 			moveDown = true;
 			break;
-		case Key_W:
+		case KeyW:
 			moveForward = true;
 			break;
-		case Key_S:
+		case KeyS:
 			moveBackward = true;
 			break;
-		case Key_R:
+		case KeyR:
 			initCamera();
 			break;
-		case Key_L:
+		case KeyL:
 			Kore::log(Kore::LogLevel::Info, "Position: (%.2f, %.2f, %.2f) - Rotation: (%.2f, %.2f, %.2f)\n", cameraX, cameraY, cameraZ, cameraRotX, cameraRotY, cameraRotZ);
 			break;
 		default:
@@ -203,27 +210,27 @@ namespace {
 		}
 	}
 
-	void keyUp(KeyCode code, wchar_t character) {
+	void keyUp(KeyCode code) {
 		switch (code)
 		{
-		case Key_Left:
-		case Key_A:
+		case KeyLeft:
+		case KeyA:
 			moveLeft = false;
 			break;
-		case Key_Right:
-		case Key_D:
+		case KeyRight:
+		case KeyD:
 			moveRight = false;
 			break;
-		case Key_Up:
+		case KeyUp:
 			moveUp = false;
 			break;
-		case Key_Down:
+		case KeyDown:
 			moveDown = false;
 			break;
-		case Key_W:
+		case KeyW:
 			moveForward = false;
 			break;
-		case Key_S:
+		case KeyS:
 			moveBackward = false;
 			break;
 		default:
@@ -252,16 +259,16 @@ namespace {
 }
 
 int kore(int argc, char** argv) {
-	Kore::System::init("Solution 3", width, height);
+	System::init("Solution 3", width, height);
 
-	initGraphics();
+	Graphics1::init(width, height);
 	Kore::System::setCallback(update);
 
 	startTime = System::time();
-	Kore::Mixer::init();
-	Kore::Audio::init();
+	
+	Kore::Audio2::init();
+	Kore::Audio1::init();
 
-	startTime = System::time();
 	mesh = loadObj("bunny.obj");
 
 	for (int i = 0; i < mesh->numVertices; i++) {
@@ -269,7 +276,6 @@ int kore(int argc, char** argv) {
 		mesh->vertices[i * 5 + 1] *= 10;
 		mesh->vertices[i * 5 + 2] *= 10;
 	}
-
 
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
