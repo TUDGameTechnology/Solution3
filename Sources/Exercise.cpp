@@ -9,6 +9,7 @@
 #include <Kore/Graphics1/Graphics.h>
 #include <Kore/Log.h>
 #include "GraphicsHelper.h"
+#include "Memory.h"
 #include "ObjLoader.h"
 
 const int width = 512;
@@ -48,7 +49,7 @@ namespace {
 	void initCamera() {
 		cameraX = 0;
 		cameraY = 0;
-		cameraZ = 10;
+		cameraZ = 1.5;
 
 		cameraRotX = 0;
 		cameraRotY = 0;
@@ -269,13 +270,8 @@ int kore(int argc, char** argv) {
 	Kore::Audio2::init();
 	Kore::Audio1::init();
 
+	Memory::init();
 	mesh = loadObj("bunny.obj");
-
-	for (int i = 0; i < mesh->numVertices; i++) {
-		mesh->vertices[i * 5 + 0] *= 10;
-		mesh->vertices[i * 5 + 1] *= 10;
-		mesh->vertices[i * 5 + 2] *= 10;
-	}
 
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
