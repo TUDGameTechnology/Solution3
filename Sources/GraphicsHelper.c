@@ -89,11 +89,11 @@ void draw_span(const struct Span span, int y) {
 	if (xdiff == 0) return;
 
 	float factor = 0.0f;
-	float factorStep = 1.0f / xdiff;
+	float factor_step = 1.0f / xdiff;
 
 	for (int x = span.x1; x < span.x2; ++x) {
 		kinc_g1_set_pixel(x, y, 1, 0, 0);
-		factor += factorStep;
+		factor += factor_step;
 	}
 }
 
