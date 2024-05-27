@@ -1,18 +1,18 @@
 #pragma once
 
 struct Mesh {
-	int numFaces;
-	int numVertices;
-	int numUVs;
+	int num_faces;
+	int num_vertices;
+	int num_uvs;
 
 	float* vertices;
 	int* indices;
 	float* uvs;
 
 	// very private
-	float* curVertex;
-	int* curIndex;
-	float* curUV;
+	float* cur_vertex;
+	int* cur_index;
+	float* cur_uv;
 };
 
-Mesh* loadObj(const char* filename);
+struct Mesh* load_obj(const char* filename);
